@@ -20,7 +20,7 @@ export async function addProductAction(productData: {
     name: string;
     price: string;
     originalPrice?: string;
-    categoryId: number;
+    categoryId?: string;
     features: string[];
     imageColor: string;
     isBestSeller: boolean;
@@ -28,13 +28,16 @@ export async function addProductAction(productData: {
 }) {
     try {
         const slug = productData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        // Extract numeric value from price string (e.g., "Rp 35.000" -> "35000")
+        const priceValue = productData.price.replace(/[^\d]/g, '') || '0';
+        const originalPriceValue = productData.originalPrice ? productData.originalPrice.replace(/[^\d]/g, '') : null;
 
         const [newProduct] = await db.insert(products).values({
             name: productData.name,
             slug,
-            price: productData.price,
-            originalPrice: productData.originalPrice || null,
-            categoryId: productData.categoryId,
+            price: priceValue,
+            originalPrice: originalPriceValue,
+            categoryId: productData.categoryId || null,
             features: productData.features,
             imageColor: productData.imageColor,
             isBestSeller: productData.isBestSeller,
@@ -55,15 +58,35 @@ export async function updateProductAction(id: number, productData: {
     name?: string;
     price?: string;
     originalPrice?: string;
-    categoryId?: number;
+    categoryId?: string;
     features?: string[];
     imageColor?: string;
     isBestSeller?: boolean;
 }) {
     try {
-        const updateData: any = { ...productData };
+        const updateData: any = {};
+
         if (productData.name) {
+            updateData.name = productData.name;
             updateData.slug = productData.name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+        }
+        if (productData.price) {
+            updateData.price = productData.price.replace(/[^\d.]/g, '');
+        }
+        if (productData.originalPrice) {
+            updateData.originalPrice = productData.originalPrice.replace(/[^\d.]/g, '');
+        }
+        if (productData.categoryId !== undefined) {
+            updateData.categoryId = productData.categoryId;
+        }
+        if (productData.features) {
+            updateData.features = productData.features;
+        }
+        if (productData.imageColor) {
+            updateData.imageColor = productData.imageColor;
+        }
+        if (productData.isBestSeller !== undefined) {
+            updateData.isBestSeller = productData.isBestSeller;
         }
 
         const [updated] = await db.update(products)

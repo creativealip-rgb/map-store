@@ -70,7 +70,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
             name: data.title,
             price: data.price,
             originalPrice: data.originalPrice,
-            categoryId: 1, // Default category, can be improved
+            categoryId: undefined, // Will be set to null in action
             features: data.features,
             imageColor: data.imageColor,
             isBestSeller: data.isBestSeller,
