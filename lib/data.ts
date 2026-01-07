@@ -1,5 +1,6 @@
 
 export const categories = [
+    { id: "all", name: "All Products", icon: "🛒" },
     { id: "streaming", name: "Streaming", icon: "🎬" },
     { id: "music", name: "Music", icon: "🎵" },
     { id: "design", name: "Design", icon: "🎨" },
@@ -17,6 +18,7 @@ export const products = [
         isBestSeller: true,
         category: "Streaming",
         imageColor: "bg-gradient-to-br from-red-600 to-black",
+        image: "/products/netflix.png",
     },
     {
         id: 2,
@@ -27,6 +29,7 @@ export const products = [
         isBestSeller: true,
         category: "Music",
         imageColor: "bg-gradient-to-br from-green-500 to-black",
+        image: "/products/spotify.png",
     },
     {
         id: 3,
@@ -37,6 +40,7 @@ export const products = [
         isBestSeller: false,
         category: "Design",
         imageColor: "bg-gradient-to-br from-cyan-400 to-purple-600",
+        image: "/products/canva.png",
     },
     {
         id: 4,
@@ -47,6 +51,7 @@ export const products = [
         isBestSeller: false,
         category: "Streaming",
         imageColor: "bg-gradient-to-br from-red-500 to-red-900",
+        image: "/products/youtube.png",
     },
     {
         id: 5,
@@ -57,6 +62,7 @@ export const products = [
         isBestSeller: true,
         category: "Productivity",
         imageColor: "bg-gradient-to-br from-green-400 to-teal-800",
+        image: "/products/chatgpt.png",
     },
     {
         id: 6,
@@ -67,5 +73,6 @@ export const products = [
         isBestSeller: false,
         category: "Streaming",
         imageColor: "bg-gradient-to-br from-blue-700 to-blue-900",
+        image: "/products/disney.png",
     },
 ];

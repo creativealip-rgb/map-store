@@ -14,6 +14,7 @@ interface CartContextType {
     isCartOpen: boolean;
     setCartOpen: (open: boolean) => void;
     createOrder: (userId: string) => Order;
+    getAllOrders: () => Order[];
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -111,6 +112,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return order;
     };
 
+    // Get all orders (for admin)
+    const getAllOrders = (): Order[] => {
+        if (typeof window === "undefined") return [];
+        const ordersStr = localStorage.getItem(ORDERS_KEY);
+        return ordersStr ? JSON.parse(ordersStr) : [];
+    };
+
     return (
         <CartContext.Provider
             value={{
@@ -124,6 +132,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
                 isCartOpen,
                 setCartOpen,
                 createOrder,
+                getAllOrders,
             }}
         >
             {children}

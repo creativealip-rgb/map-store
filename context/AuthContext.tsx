@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { User, generateId } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
 
 interface AuthContextType {
     user: User | null;
@@ -9,6 +10,7 @@ interface AuthContextType {
     login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
     register: (data: RegisterData) => Promise<{ success: boolean; error?: string }>;
     logout: () => void;
+    loginWithGoogle: () => Promise<void>;
     isAuthModalOpen: boolean;
     setAuthModalOpen: (open: boolean) => void;
     authMode: "login" | "register";
@@ -37,13 +39,45 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [isAuthModalOpen, setAuthModalOpen] = useState(false);
     const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
-    // Load user from localStorage on mount
+    // Load user from localStorage OR Supabase session on mount
     useEffect(() => {
+        const supabase = createClient();
+
+        // Check localStorage first
         const storedUser = localStorage.getItem(CURRENT_USER_KEY);
         if (storedUser) {
             setUser(JSON.parse(storedUser));
         }
+
+        // Listen for Supabase auth state changes (for OAuth)
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            async (event, session) => {
+                if (event === 'SIGNED_IN' && session?.user) {
+                    const supabaseUser = session.user;
+                    const newUser: User = {
+                        id: supabaseUser.id,
+                        email: supabaseUser.email || '',
+                        name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || 'User',
+                        whatsapp: supabaseUser.user_metadata?.phone || '',
+                        role: 'user',
+                        createdAt: supabaseUser.created_at,
+                    };
+                    setUser(newUser);
+                    localStorage.setItem(CURRENT_USER_KEY, JSON.stringify(newUser));
+                    setAuthModalOpen(false);
+                } else if (event === 'SIGNED_OUT') {
+                    setUser(null);
+                    localStorage.removeItem(CURRENT_USER_KEY);
+                }
+            }
+        );
+
         setIsLoading(false);
+
+        // Cleanup subscription on unmount
+        return () => {
+            subscription.unsubscribe();
+        };
     }, []);
 
     // Get all stored users
@@ -72,6 +106,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             password: data.password, // In production, this should be hashed
             name: data.name,
             whatsapp: data.whatsapp,
+            role: 'user',
             createdAt: new Date().toISOString(),
         };
 
@@ -104,8 +139,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: true };
     };
 
+    // Login with Google via Supabase
+    const loginWithGoogle = async () => {
+        const supabase = createClient();
+        await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: `${window.location.origin}/auth/callback`,
+            },
+        });
+    };
+
     // Logout user
-    const logout = () => {
+    const logout = async () => {
+        const supabase = createClient();
+        await supabase.auth.signOut();
         setUser(null);
         localStorage.removeItem(CURRENT_USER_KEY);
     };
@@ -118,6 +166,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 register,
                 logout,
+                loginWithGoogle,
                 isAuthModalOpen,
                 setAuthModalOpen,
                 authMode,

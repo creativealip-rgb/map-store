@@ -23,12 +23,11 @@ const CartDrawer = () => {
     if (!isCartOpen) return null;
 
     const handleCheckout = () => {
-        if (!user) {
-            setAuthMode("register");
-            setAuthModalOpen(true);
-            setCartOpen(false);
-            return;
-        }
+        // Optional: Require login? For now let's allow guest or require login on checkout page if needed
+        // But logic says: if user is not logged in, prompt register.
+        // Let's keep it, or relax it. The plan said "Guest Checkout" in server action logic.
+        // BUT, CartDrawer logic currently forces login.
+        // Let's RELAX it to allow guest checkout as per my server action design (userId is optional).
 
         setCartOpen(false);
         router.push("/checkout");
@@ -131,14 +130,10 @@ const CartDrawer = () => {
                             onClick={handleCheckout}
                             className="w-full py-4 bg-primary hover:bg-primary/90 text-black font-bold rounded-xl transition-all flex items-center justify-center gap-2"
                         >
-                            {user ? "Lanjut ke Checkout" : "Daftar & Checkout"}
+                            {user ? "Lanjut ke Checkout" : "Checkout (Bisa Tanpa Login)"}
                         </button>
 
-                        {!user && (
-                            <p className="text-center text-white/40 text-sm">
-                                Anda perlu login/daftar untuk melanjutkan
-                            </p>
-                        )}
+
                     </div>
                 )}
             </div>

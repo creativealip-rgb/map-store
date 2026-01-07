@@ -190,31 +190,6 @@ export default function DashboardPage() {
                                                     <span className="text-white/60">Total</span>
                                                     <span className="text-xl font-bold text-primary">{formatPrice(order.total)}</span>
                                                 </div>
-
-                                                {/* Actions */}
-                                                {order.status === "pending" && (
-                                                    <div className="mt-4 flex gap-3">
-                                                        <Link
-                                                            href={`/payment?orderId=${order.id}`}
-                                                            className="flex-1 py-2 bg-primary hover:bg-primary/90 text-black font-semibold rounded-xl text-center transition-colors"
-                                                        >
-                                                            Bayar Sekarang
-                                                        </Link>
-                                                    </div>
-                                                )}
-
-                                                {order.status === "completed" && (
-                                                    <div className="mt-4">
-                                                        <a
-                                                            href={`https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mau%20klaim%20garansi%20untuk%20order%20${order.id}`}
-                                                            target="_blank"
-                                                            className="flex items-center justify-center gap-2 py-2 bg-white/10 hover:bg-white/20 text-white font-semibold rounded-xl transition-colors"
-                                                        >
-                                                            <MessageCircle className="w-4 h-4" />
-                                                            Klaim Garansi
-                                                        </a>
-                                                    </div>
-                                                )}
                                             </div>
                                         );
                                     })}
@@ -227,4 +202,3 @@ export default function DashboardPage() {
         </div>
     );
 }
-

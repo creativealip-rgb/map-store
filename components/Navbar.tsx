@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Zap, Menu, ShoppingCart, User, LogOut, LayoutDashboard, X } from "lucide-react";
+import { Zap, Menu, ShoppingCart, User, LogOut, LayoutDashboard, X, ShoppingBag } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
@@ -34,15 +34,21 @@ const Navbar = () => {
 
                 {/* Desktop Nav */}
                 <div className="hidden md:flex items-center gap-8">
-                    {["Home", "Catalog", "Testimonials", "FAQ"].map((item) => (
-                        <Link
-                            key={item}
-                            href={item === "Home" ? "/" : `#${item.toLowerCase()}`}
-                            className="text-sm font-medium text-white/70 hover:text-primary transition-colors hover:glow"
-                        >
-                            {item}
-                        </Link>
-                    ))}
+                    <Link
+                        href="/"
+                        className="text-sm font-medium text-white/70 hover:text-primary transition-colors"
+                    >
+                        Home
+                    </Link>
+                    <button
+                        onClick={() => {
+                            const event = new CustomEvent('openCaraOrder');
+                            window.dispatchEvent(event);
+                        }}
+                        className="text-sm font-medium text-white/70 hover:text-primary transition-colors"
+                    >
+                        Cara Order
+                    </button>
                 </div>
 
                 {/* Right Side Actions */}
@@ -78,13 +84,23 @@ const Navbar = () => {
                             {/* User Dropdown */}
                             {isUserMenuOpen && (
                                 <div className="absolute top-full right-0 mt-2 w-48 bg-surface border border-white/10 rounded-xl overflow-hidden shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+                                    {user.role === 'admin' && (
+                                        <Link
+                                            href="/admin"
+                                            className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors"
+                                            onClick={() => setUserMenuOpen(false)}
+                                        >
+                                            <LayoutDashboard className="w-4 h-4 text-primary" />
+                                            Admin Panel
+                                        </Link>
+                                    )}
                                     <Link
                                         href="/dashboard"
                                         className="flex items-center gap-3 px-4 py-3 text-sm hover:bg-white/5 transition-colors"
                                         onClick={() => setUserMenuOpen(false)}
                                     >
-                                        <LayoutDashboard className="w-4 h-4 text-primary" />
-                                        Dashboard
+                                        <ShoppingBag className="w-4 h-4 text-primary" />
+                                        Pesanan Saya
                                     </Link>
                                     <button
                                         onClick={() => {
@@ -123,26 +139,43 @@ const Navbar = () => {
             {isMobileMenuOpen && (
                 <div className="md:hidden bg-surface border-t border-white/5 animate-in slide-in-from-top duration-200">
                     <div className="container mx-auto px-4 py-4 space-y-2">
-                        {["Home", "Catalog", "Testimonials", "FAQ"].map((item) => (
-                            <Link
-                                key={item}
-                                href={item === "Home" ? "/" : `#${item.toLowerCase()}`}
-                                className="block py-3 px-4 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                {item}
-                            </Link>
-                        ))}
+                        <Link
+                            href="/"
+                            className="block py-3 px-4 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                            onClick={() => setMobileMenuOpen(false)}
+                        >
+                            Home
+                        </Link>
+                        <button
+                            onClick={() => {
+                                const event = new CustomEvent('openCaraOrder');
+                                window.dispatchEvent(event);
+                                setMobileMenuOpen(false);
+                            }}
+                            className="w-full text-left py-3 px-4 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                        >
+                            Cara Order
+                        </button>
                         <hr className="border-white/10" />
                         {user ? (
                             <>
+                                {user.role === 'admin' && (
+                                    <Link
+                                        href="/admin"
+                                        className="flex items-center gap-3 py-3 px-4 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                    >
+                                        <LayoutDashboard className="w-4 h-4" />
+                                        Admin Panel
+                                    </Link>
+                                )}
                                 <Link
                                     href="/dashboard"
                                     className="flex items-center gap-3 py-3 px-4 rounded-lg text-white/70 hover:text-white hover:bg-white/5 transition-colors"
                                     onClick={() => setMobileMenuOpen(false)}
                                 >
-                                    <LayoutDashboard className="w-4 h-4" />
-                                    Dashboard
+                                    <ShoppingBag className="w-4 h-4" />
+                                    Pesanan Saya
                                 </Link>
                                 <button
                                     onClick={() => {

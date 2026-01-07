@@ -4,7 +4,13 @@ export interface User {
     email: string;
     name: string;
     whatsapp: string;
+    role?: 'admin' | 'user';
     createdAt: string;
+}
+
+export interface AdminUser {
+    email: string;
+    name: string;
 }
 
 // Product Types
@@ -17,6 +23,7 @@ export interface Product {
     isBestSeller?: boolean;
     category: string;
     imageColor: string;
+    image?: string;
 }
 
 // Cart Types
