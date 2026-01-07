@@ -6,7 +6,7 @@ import { formatPrice, Order, CartItem } from "@/lib/types";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Copy, Check, MessageCircle, CreditCard, Building2, Smartphone, QrCode, Clock } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useRef } from "react";
 
 // Payment info - Replace with actual data
 const PAYMENT_INFO = {
@@ -46,12 +46,18 @@ function PaymentContent() {
     const [copiedText, setCopiedText] = useState<string | null>(null);
     const [order, setOrder] = useState<Order | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const orderLoadedRef = useRef(false);
 
     // Get orderId from URL if present (coming from dashboard)
     const urlOrderId = searchParams.get('orderId');
 
     // Load existing order from localStorage or create new one
     useEffect(() => {
+        // Skip if already loaded
+        if (orderLoadedRef.current) {
+            return;
+        }
+
         if (!user) {
             router.push("/checkout");
             return;
@@ -66,26 +72,29 @@ function PaymentContent() {
             if (existingOrder) {
                 setOrder(existingOrder);
                 setIsLoading(false);
+                orderLoadedRef.current = true;
                 return;
             }
         }
 
         // If cart has items, create new order
-        if (items.length > 0 && !order) {
+        if (items.length > 0) {
             const newOrder = createOrder(user.id);
             setOrder(newOrder);
             setIsLoading(false);
+            orderLoadedRef.current = true;
             return;
         }
 
         // If no order found and cart is empty, redirect to home
-        if (!urlOrderId && items.length === 0 && !order) {
+        if (!urlOrderId && items.length === 0) {
             router.push("/");
             return;
         }
 
         setIsLoading(false);
-    }, [user, items, router, order, urlOrderId, createOrder]);
+    }, [user, items, router, urlOrderId, createOrder]);
+
 
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
