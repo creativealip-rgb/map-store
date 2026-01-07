@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { getProductsAction } from "@/lib/actions/products";
+import { getProductsAction, addProductAction, updateProductAction, deleteProductAction } from "@/lib/actions/products";
 
 interface AdminContextType {
     isAdmin: boolean;
@@ -12,6 +12,10 @@ interface AdminContextType {
     logout: () => void;
     products: any[];
     adminUser: any;
+    addProduct: (data: any) => Promise<void>;
+    updateProduct: (id: number, data: any) => Promise<void>;
+    deleteProduct: (id: number) => Promise<void>;
+    refreshProducts: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -23,6 +27,7 @@ export function AdminProvider({ children }: { children: ReactNode }) {
     const router = useRouter();
     const [isAdmin, setIsAdmin] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [products, setProducts] = useState<any[]>([]);
 
     useEffect(() => {
         // Check if user has admin role from AuthContext
@@ -47,27 +52,71 @@ export function AdminProvider({ children }: { children: ReactNode }) {
         router.push("/admin/login");
     };
 
-
-
-    // Placeholder for products - in real app, fetch from DB
-    const [products, setProducts] = useState<any[]>([]);
+    const refreshProducts = async () => {
+        const result = await getProductsAction();
+        if (result.success && result.data) {
+            setProducts(result.data);
+        }
+    };
 
     useEffect(() => {
-        const fetchProducts = async () => {
-            if (isAdmin) { // Only fetch if admin
-                const result = await getProductsAction();
-                if (result.success && result.data) {
-                    setProducts(result.data);
-                }
-            }
-        };
-        fetchProducts();
+        if (isAdmin) {
+            refreshProducts();
+        }
     }, [isAdmin]);
+
+    const addProduct = async (data: any) => {
+        const result = await addProductAction({
+            name: data.title,
+            price: data.price,
+            originalPrice: data.originalPrice,
+            categoryId: 1, // Default category, can be improved
+            features: data.features,
+            imageColor: data.imageColor,
+            isBestSeller: data.isBestSeller,
+            image: data.image,
+        });
+        if (result.success) {
+            await refreshProducts();
+        }
+    };
+
+    const updateProduct = async (id: number, data: any) => {
+        const result = await updateProductAction(id, {
+            name: data.title,
+            price: data.price,
+            originalPrice: data.originalPrice,
+            features: data.features,
+            imageColor: data.imageColor,
+            isBestSeller: data.isBestSeller,
+        });
+        if (result.success) {
+            await refreshProducts();
+        }
+    };
+
+    const deleteProduct = async (id: number) => {
+        const result = await deleteProductAction(id);
+        if (result.success) {
+            await refreshProducts();
+        }
+    };
 
     const adminUser = user;
 
     return (
-        <AdminContext.Provider value={{ isAdmin, loading, login, logout, products, adminUser }}>
+        <AdminContext.Provider value={{
+            isAdmin,
+            loading,
+            login,
+            logout,
+            products,
+            adminUser,
+            addProduct,
+            updateProduct,
+            deleteProduct,
+            refreshProducts
+        }}>
             {children}
         </AdminContext.Provider>
     );
