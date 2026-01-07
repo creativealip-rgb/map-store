@@ -17,18 +17,12 @@ const CartDrawer = () => {
         getCartCount
     } = useCart();
 
-    const { user, setAuthModalOpen, setAuthMode } = useAuth();
+    const { user } = useAuth();
     const router = useRouter();
 
     if (!isCartOpen) return null;
 
     const handleCheckout = () => {
-        // Optional: Require login? For now let's allow guest or require login on checkout page if needed
-        // But logic says: if user is not logged in, prompt register.
-        // Let's keep it, or relax it. The plan said "Guest Checkout" in server action logic.
-        // BUT, CartDrawer logic currently forces login.
-        // Let's RELAX it to allow guest checkout as per my server action design (userId is optional).
-
         setCartOpen(false);
         router.push("/checkout");
     };
@@ -37,24 +31,24 @@ const CartDrawer = () => {
         <div className="fixed inset-0 z-50 flex justify-end">
             {/* Backdrop */}
             <div
-                className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                className="absolute inset-0 bg-black/90 animate-fade-in"
                 onClick={() => setCartOpen(false)}
             />
 
             {/* Drawer */}
-            <div className="relative w-full max-w-md bg-surface border-l border-white/10 h-full animate-in slide-in-from-right duration-300 flex flex-col">
+            <div className="relative w-full max-w-md bg-surface border-l border-border h-full flex flex-col animate-slide-in-right">
                 {/* Header */}
-                <div className="p-6 border-b border-white/10 flex items-center justify-between">
+                <div className="p-6 border-b border-border flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <ShoppingBag className="w-6 h-6 text-primary" />
                         <h2 className="text-xl font-bold">Keranjang</h2>
-                        <span className="px-2 py-1 bg-primary/20 text-primary text-sm font-medium rounded-full">
+                        <span className="px-2 py-1 bg-surface border border-border text-primary text-sm font-medium">
                             {getCartCount()} item
                         </span>
                     </div>
                     <button
                         onClick={() => setCartOpen(false)}
-                        className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+                        className="p-2 border border-border hover:border-white/40 transition-colors"
                     >
                         <X className="w-5 h-5" />
                     </button>
@@ -73,11 +67,11 @@ const CartDrawer = () => {
                             {items.map((item) => (
                                 <div
                                     key={item.product.id}
-                                    className="bg-white/5 border border-white/10 rounded-xl p-4 hover:border-white/20 transition-colors"
+                                    className="bg-background border border-border p-4 hover:border-white/40 transition-colors"
                                 >
                                     <div className="flex gap-4">
                                         {/* Product Color */}
-                                        <div className={`w-16 h-16 rounded-lg ${item.product.imageColor} flex-shrink-0`} />
+                                        <div className={`w-16 h-16 ${item.product.imageColor} flex-shrink-0`} />
 
                                         {/* Details */}
                                         <div className="flex-1 min-w-0">
@@ -88,20 +82,20 @@ const CartDrawer = () => {
                                             <div className="flex items-center gap-2 mt-2">
                                                 <button
                                                     onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                                                    className="p-1 rounded-md bg-white/5 hover:bg-white/10 transition-colors"
+                                                    className="p-1 border border-border hover:border-white/40 transition-colors"
                                                 >
                                                     <Minus className="w-4 h-4" />
                                                 </button>
                                                 <span className="w-8 text-center font-medium">{item.quantity}</span>
                                                 <button
                                                     onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                                                    className="p-1 rounded-md bg-white/5 hover:bg-white/10 transition-colors"
+                                                    className="p-1 border border-border hover:border-white/40 transition-colors"
                                                 >
                                                     <Plus className="w-4 h-4" />
                                                 </button>
                                                 <button
                                                     onClick={() => removeFromCart(item.product.id)}
-                                                    className="ml-auto p-1 rounded-md text-red-400 hover:bg-red-500/10 transition-colors"
+                                                    className="ml-auto p-1 text-accent hover:bg-accent/10 transition-colors"
                                                 >
                                                     <Trash2 className="w-4 h-4" />
                                                 </button>
@@ -116,7 +110,7 @@ const CartDrawer = () => {
 
                 {/* Footer */}
                 {items.length > 0 && (
-                    <div className="p-6 border-t border-white/10 space-y-4">
+                    <div className="p-6 border-t border-border space-y-4">
                         {/* Total */}
                         <div className="flex items-center justify-between">
                             <span className="text-white/60">Subtotal</span>
@@ -128,12 +122,10 @@ const CartDrawer = () => {
                         {/* Checkout Button */}
                         <button
                             onClick={handleCheckout}
-                            className="w-full py-4 bg-primary hover:bg-primary/90 text-black font-bold rounded-xl transition-all flex items-center justify-center gap-2"
+                            className="w-full py-4 bg-primary hover:bg-primary/90 text-background font-bold transition-all glow-hover flex items-center justify-center gap-2"
                         >
                             {user ? "Lanjut ke Checkout" : "Checkout (Bisa Tanpa Login)"}
                         </button>
-
-
                     </div>
                 )}
             </div>
